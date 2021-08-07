@@ -1,0 +1,87 @@
+//Bac Ba Phi
+
+#include<stdio.h>
+
+typedef struct{
+	int x, y, w;
+}Edge;
+
+typedef struct{
+	Edge A[100];
+	int n, m;
+}Graph;
+
+void init_graph(Graph *G, int n){
+	G->n = n;
+	G->m = 0;
+}
+
+void add_edge(Graph *G, int x, int y, int w){
+	G->A[G->m].x = x;
+	G->A[G->m].y = y;
+	G->A[G->m].w = w;
+	G->m++;
+}
+
+void sort(Graph *G){
+	int i, j;
+	Edge t;
+	for(i = 0; i < G->m; i++)
+		for(j = i+1; j < G->m; j++)
+			if(G->A[i].w > G->A[j].w)
+			{
+				t = G->A[i];
+				G->A[i] = G->A[j];
+				G->A[j] = t;
+			}
+}
+
+int parent[100];
+
+int find_root(int u){
+	if(parent[u] == u)
+		return u;
+	else return find_root(parent[u]);
+}
+int yes;
+
+int kruskal(Graph *G){
+	int i;
+	sort(G);
+	for(i = 1; i <= G->n; i++)
+		parent[i] = i;
+	int sum = 0;
+	for(i = 0; i < G->m; i++)
+	{
+		int u = G->A[i].x;
+		int v = G->A[i].y;
+		int w = G->A[i].w;
+		int u1 = find_root(u);
+		int v1 = find_root(v);
+		if(v1 != u1)
+		{
+			yes = 1;
+			parent[v1] = u1;
+			sum += w;
+		}
+		else yes = 0;
+	}
+	return sum;
+}
+
+
+int main(){
+	Graph G;
+	int e, u, v, x, y, n, m;
+	scanf("%d%d", &n, &m);
+	init_graph(&G, n);
+	for(e=1; e<=m; e++){
+		scanf("%d%d%d%d", &u, &v, &x, &y);
+		add_edge(&G, u, v, x*y);
+	}
+	yes = 1;
+	int sum = kruskal(&G);
+	if(yes != 0)	printf("KHONG CO LOI GIAI");
+	else printf("%d", sum);
+	return 0;
+}

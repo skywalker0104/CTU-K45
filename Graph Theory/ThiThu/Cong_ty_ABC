@@ -1,0 +1,32 @@
+//Cong ty ABC
+
+#include<stdio.h>
+
+typedef struct{
+	int A[100][500];
+	int n;
+}Graph;
+
+int check(Graph G, int x){
+	int y;
+	int s = 0;
+	for(y = 1; y <= G.n; y++)
+		if(G.A[y][x] == 1)
+			s++;
+	return s;
+}
+
+int main(){
+	Graph G;
+	int n, m, u, v, i, p;
+	scanf("%d%d", &n, &m);
+	G.n = n;
+	for(i = 0; i < m; i++)
+	{
+		scanf("%d%d", &u, &v);
+		G.A[u][v] = 1;
+	}
+	scanf("%d", &p);
+	printf("%d:%d", p, check(G, p));
+	return 0;
+}

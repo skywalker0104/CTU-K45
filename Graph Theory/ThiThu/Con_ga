@@ -1,0 +1,74 @@
+//Con ga
+
+#include<stdio.h>
+
+typedef struct{
+	int A[100][500];
+	int n;
+}Graph;
+
+typedef struct{
+	int data[100];
+	int size;
+}List;
+
+List neighbors(Graph G, int x){
+	int y;
+	List L;
+	L.size = 0;
+	for(y = 1; y <= G.n; y++)
+	{
+		if(G.A[x][y] != 0)
+		{
+			L.data[L.size] = y;
+			L.size++;
+		}
+	}
+	return L;
+}
+
+int mark[100], yes;
+
+void bigraph(Graph G, int u, int t){
+	int i;
+	if(mark[u] == -1)
+	{
+		mark[u] = t;
+		List lst = neighbors(G, u);
+		for(i = 0; i < lst.size; i++)
+		{
+			int y = lst.data[i];
+			bigraph(G, y, !t);
+		}
+	}
+	else if(mark[u] != t)
+		yes = 1;
+}
+
+int main(){
+	Graph G;
+	int n, m, u, v, e, i;
+	scanf("%d%d", &n, &m);
+	G.n = n;
+	for(e=0; e<m; e++){
+		scanf("%d%d", &u, &v);
+		G.A[u][v] = 1;
+		G.A[v][u] = 1;
+	}
+	for(i = 1; i <= n; i++)
+		mark[i] = -1;
+	yes = 0;
+	int a = 0, b = 0;
+	bigraph(G, 1, 0);
+	if(yes != 1)
+	{
+		for(i = 1; i <= n; i++)
+		{
+			if(!mark[i])	a++;
+			if(mark[i])	b++;
+		}
+		printf("%d %d", a, b);
+	}
+	else printf("-1 -1");
+	return 0;
+}

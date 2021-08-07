@@ -1,0 +1,136 @@
+//Graph food
+
+#include<stdio.h>
+
+typedef struct{
+    int data[100];
+    int rear, front;
+}Queue;
+
+void make_null(Queue *Q){
+	Q->front = 0;
+	Q->rear = -1;
+}
+
+void push(Queue *Q, int x){
+	Q->rear++;
+	Q->data[Q->rear] = x;
+}
+
+int top(Queue *Q){
+	Q->front++;
+	return Q->data[Q->front-1];
+}
+
+int empty(Queue Q){
+	return Q.front > Q.rear;
+}
+
+typedef struct{
+	int C[100][500];
+	int F[100][500];
+	int n;
+}Graph;
+
+typedef struct{
+	int dir;
+	int pre;
+	int sigma;
+}Label;
+
+void init_flow(Graph *G){
+	int i, j;
+	for(i = 1; i <= G->n; i++)
+		for(j = 1; j <= G->n; j++)
+			G->F[i][j] = -1;
+}
+
+int min(int a, int b){
+	return a < b ? a:b;
+}
+
+Label labels[100];
+
+int ford_fullkerson(Graph *G, int s, int t){
+	int u, v;
+	int sum_flow = 0;
+	Queue Q;
+	do
+	{
+		for(u = 1; u <= G->n; u++)
+			labels[u].dir = 0;
+		labels[s].dir = 1;
+		labels[s].pre = s;
+		labels[s].sigma = 99999;
+		make_null(&Q);
+		push(&Q, s);
+		int found = 0;
+		while(!empty(Q))
+		{
+			int u = top(&Q);
+			for(v = 1; v <= G->n; v++)
+			{
+				if(labels[v].dir == 0 && G->C[u][v] != 0 && G->F[u][v] < G->C[u][v])
+				{
+					labels[v].dir = 1;
+					labels[v].pre = u;
+					labels[v].sigma = min(labels[u].sigma, G->C[u][v] - G->F[u][v]);
+					push(&Q, v);
+				}
+//				if(labels[v].dir == 0 && G->C[v][u] != 0 && G->F[v][u] > -1)
+//				{
+//					labels[v].dir = -1;
+//					labels[v].pre = u;
+//					labels[v].sigma = min(labels[u].sigma, G->F[u][v]);
+//					push(&Q, v);
+//				}
+			}
+			if(labels[t].dir != 0)
+			{
+				found = 1;
+				break;
+			}
+		}
+		if(found == 1)
+		{
+			int x = t;
+			int sigma = labels[t].sigma;
+			sum_flow += sigma;
+			while(x != s)
+			{
+				int u = labels[x].pre;
+				if(labels[x].dir > 0)	G->F[u][x] += sigma;
+				else G->F[x][u] -= sigma;
+				x = u;
+			}
+		}	else break;
+	}while(1);
+	return sum_flow;
+}
+
+int main(){
+   	Graph G;
+	int n, m, u, v, c, f, e, i;
+	scanf("%d%d", &n, &m);
+	G.n = n;
+	init_flow(&G);
+	for(e=0; e<m; e++){
+		scanf("%d%d%d%d", &u, &v, &c, &f);
+		G.C[u][v]=c;
+		G.F[u][v]=f;
+	}
+	int sum = 0, max = 0;
+    int flow = ford_fullkerson(&G, 1, n);
+    if(flow > -1)
+    {
+    for(i = 1; i <= G.n; i++)
+    	if(G.F[i][n] != -1)
+    		max += G.F[i][n];
+    for(i = 1; i <= G.n; i++)
+    	if(G.F[1][i] != -1)
+    		sum += G.F[1][i];    	
+	}
+    if(max == sum)	printf("TOT");
+    else printf("MAT HANG");
+	return 0;
+}
